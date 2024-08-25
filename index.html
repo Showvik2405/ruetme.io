@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUET Mechanical Engineering Student Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://i.pinimg.com/564x/cf/aa/35/cfaa35e5bcfe32fdf9072bb298b1c4b7.jpg') no-repeat center center fixed; /* Replace with actual background image URL */
+            background-size: cover;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        #robot-intro {
+            animation: fadeIn 2s forwards;
+            position: relative;
+            text-align: center;
+        }
+
+        #robot-intro img {
+            max-width: 200px;
+        }
+
+        #faq-interface {
+            margin-top: 20px;
+            animation: fadeIn 2s 5s forwards;
+        }
+
+        input {
+            margin: 5px;
+            padding: 10px;
+            background-color: #333;
+            border: none;
+            color: white;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: #ff5733;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .typewriter p {
+            overflow: hidden;
+            border-right: .15em solid orange;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: orange; }
+        }
+    </style>
+</head>
+<body>
+    <div id="robot-intro">
+        <img src="https://media1.tenor.com/m/5hKPyupKGWMAAAAC/robot-hello.gif" alt="Robot"> <!-- Replace with actual robot image URL -->
+        <div class="typewriter">
+            <h1 id="intro-text"></h1>
+        </div>
+    </div>
+
+    <div id="faq-interface">
+        <h1>RUET ME Student Information</h1>
+        <input type="text" id="question" placeholder="Ask a question...">
+        <button onclick="askQuestion()">Ask Me</button>
+        <div id="result" class="typewriter"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const introTextElement = document.getElementById('intro-text');
+
+            const introText = "Welcome to RUET ME. I am DataCell, your AI assistant for RUET ME '23.";
+            let index = 0;
+
+            function typeWriter() {
+                if (index < introText.length) {
+                    introTextElement.innerHTML += introText.charAt(index);
+                    index++;
+                    setTimeout(typeWriter, 100);
+                }
+            }
+
+            function speakText(text) {
+                const synth = window.speechSynthesis;
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                synth.speak(utterance);
+            }
+
+            setTimeout(() => {
+                speakText(introText);
+                typeWriter();
+            }, 1000); // delay to show robot intro
+        });
+
+        async function askQuestion() {
+            const question = document.getElementById('question').value.toLowerCase();
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = ''; // Clear previous result
+
+            let response;
+            let data;
+
+            if (question.includes('student list of ruet me')) {
+                response = await fetch('/query?q=student list of ruet me');
+                data = await response.json();
+            } else {
+                const studentName = question.replace('who is ', '').trim();
+                response = await fetch(`/student/${studentName}`);
+                data = await response.json();
+            }
+
+            if (response.ok) {
+                const message = data.message;
+                typeWriterText(resultDiv, message);
+                speakText(message);
+            } else {
+                const error = `Error: ${data.error}`;
+                typeWriterText(resultDiv, error);
+                speakText(error);
+            }
+        }
+
+        function typeWriterText(element, text) {
+            let index = 0;
+            function typeWriter() {
+                if (index < text.length) {
+                    element.innerHTML += text.charAt(index);
+                    index++;
+                    setTimeout(typeWriter, 50);
+                }
+            }
+            typeWriter();
+        }
+
+        function speakText(text) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            synth.speak(utterance);
+        }
+    </script>
+    
+
+</body>
+</html>
